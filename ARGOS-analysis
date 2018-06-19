@@ -1,0 +1,693 @@
+#!/usr/local/bin/perl
+## combine status and histogram dive data to produce Excel-ready analysis
+#  Wildlife Computers https://wildlifecomputers.com/
+
+use Date::Parse;
+
+use strict 'vars';
+
+my $root = "$ENV{ARGOS_ROOT}";
+
+# global data
+my %C; # all control file values
+my %S; # surface (status file)
+my %M; # maxdepth (status file)
+my %H; # histogram
+my %W; # merged
+my $reject; # number of rejected lines
+my $accept; # number of accepted lines
+
+# constants
+# flag these conditions in 'warn' column
+my $roll_over    = 130; #  maximum continuation-DOY 
+my $max_speed    =  3.0;
+my $max_diverate = 15.0;
+my $max_dist     = 1200;
+
+# configuration
+my $quiet    = 0;
+my $validate = 1;
+my $debug    = 1;
+my $missing  = ''; # how to show missing value
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+# pre-flight that we have both required data files
+unless ($#ARGV == 1) {
+    print "ERROR: Need status and histograms files!\n\n";
+    exec "pod2text $0" 
+}
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+# dive analysis, in three simple steps
+read_data();
+run_data();
+show_data();
+
+err_analysis('Done','');
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#####
+# read the three kinds of data needed to perform analysis
+sub read_data {
+
+# process whale 'control' data
+process_whale();
+
+# process status data
+my $status = shift @ARGV;
+open(STATUS,"<$status") || die "No such file '$status'";
+while (!eof(STATUS)) {
+    $_ = read_status(); process_status();
+}
+
+# process histogram data
+while (!eof()) {
+    $_ = read_histo(); process_histo();
+}
+$_ = read_histo(); 
+process_histo(); # get the very last one
+
+# summarize results of processing
+my $msg = sprintf "accepted: %5d\trejected: %5d", $accept, $reject;
+err_analysis('summary',$msg);
+
+}
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#####
+# merge surface/histogram data, perform dive/speed analysis
+sub run_data {
+my($ibin,$nogo,$tad,$zbin);
+
+# for each whale...
+for my $k (sort keys %H) {
+
+    # for each time period...
+    for my $daynr (sort keys %{$H{$k}}) {
+
+        # merge surface data into histogram data
+        if (defined $S{$k}{$daynr}) {
+            $H{$k}{$daynr}{surface} = $S{$k}{$daynr};
+        } else {
+            err_read('no surface', "$k : $daynr");
+        }
+
+        # enough info. to calculate dives/hr, speed?
+        next unless defined $H{$k}{$daynr}{bin}[2]{sum};
+        next unless defined $H{$k}{$daynr}{bin}[0]{sum};
+        my $bin0 = \$H{$k}{$daynr}{bin}[0]{bins};
+        my $bin2 = \$H{$k}{$daynr}{bin}[2]{bins};
+
+        # for all bins...
+        $ibin = $nogo = $tad = $zbin = 0;
+        for my $b (1..$#$$bin0) {
+
+            # TAD & dist
+            if ($$$bin0[$b] == 0) {
+#print STDERR "WHOA: $k : $daynr : $b\n" if ! defined $$$bin2[$b];
+#$DB::single = 1 if ! defined $$$bin2[$b];
+                $tad  += $$$bin2[$b]; # DH debug
+                $zbin  = $b if $$$bin0[-1+$b] != 0;
+            } elsif (defined $$$bin0[1+$b] && $$$bin0[1+$b] == 0) {
+                $tad = $zbin = 0;
+            }
+
+            # not an isolated depth bin candidate
+            next unless $$$bin0[$b] != 0 && $$$bin0[-1+$b] == 0;
+
+            # mark isolated depth bin, or mark impossible
+             $nogo++ if $ibin && defined $$$bin0[1+$b] && $$$bin0[1+$b] != 0;
+             $ibin = $b unless defined $$$bin0[1+$b] && $$$bin0[1+$b] != 0;
+        }
+
+        # if we have them, calculate & store dives/distance/TAD/speed
+        if ($ibin && !$nogo && $zbin > 0 && $tad > 0) {
+        if ($ibin > $zbin ) {
+            my $sum   = $H{$k}{$daynr}{bin}[2]{sum};
+            my $dives = $H{$k}{$daynr}{bin}[0]{bins}[$ibin];
+            my $dist  = $C{$k}{'depth'}[$ibin-1] - $C{$k}{'depth'}[$zbin-1];
+            $H{$k}{$daynr}{bin}[0]{ibin} = $ibin;
+            $H{$k}{$daynr}{bin}[0]{tad}  = $tad;
+            $H{$k}{$daynr}{bin}[0]{dist} = $dist;
+            $H{$k}{$daynr}{bin}[0]{speed}= ($dives*$dist)/(21600*($tad/$sum)/2);
+        } else {
+            $DB::single = 1;
+            print STDERR "Missing depth for TAD: $k $daynr\n"; 
+        }
+        }
+    }
+}
+
+}
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#####
+# display data & analysis
+sub show_data {
+
+my @header = qw(PLACE YEAR IDNO DAYNR PERIOD TYPE SPECIES SEX MOT/CALF SIZE SIZECAT DEPTH1 DEPTH2 SURF SURF%D1 SURF%D2 SUM BIN01 BIN02 BIN03 BIN04 BIN05 BIN06 BIN07 BIN08 BIN09 BIN10 BIN11 BIN12 BIN13 BIN14 DIVES DIST TAD SPEED DIVE/H/6H DIVE/H/24H MAXDEPTH WARN);
+
+my $out;
+for my $h (@header) {
+    $out .= sprintf qq{"$h",};
+}
+$out =~ s/,$//;
+print "$out\n" unless $quiet;
+
+my($dives,$dive24,$quarter,$warn);
+
+for my $k (sort keys %H) {
+  my($idno,$year) = split /_/, $k;    
+  my $quarter = 0;
+  for my $daynr (sort keys %{$H{$k}}) {
+  (my $period = $daynr) =~ s/^.*\.//; $period = '0.' . $period;
+
+  # daily reset
+  if ($dive24) {
+      $dives = 0;
+      $quarter = 0;
+  }
+  my $surface = $H{$k}{$daynr}{surface};
+
+  my $type0 = defined $H{$k}{$daynr}{bin}[0]{sum};
+  my $type1 = defined $H{$k}{$daynr}{bin}[1]{sum};
+  my $type2 = defined $H{$k}{$daynr}{bin}[2]{sum};
+  $quarter++ if $type0 || $type1;
+
+  #
+  for my $type (0..2) {
+      $warn = 0;
+
+    unless (defined $H{$k}{$daynr}{bin}[$type]{sum}) {    
+          err_analysis('bin missing',"$idno $year: daynr=$daynr type=$type");
+        next;
+    }
+
+    # easy stuff
+    print qq{"$C{$k}{locale}",};            # location
+    print qq{$year,};                       # $year
+    print qq{$idno,};                       # $idno
+    print qq{$daynr,};                      # $daynr
+    print qq{$period,};                     # period
+    print qq{$type,};                       # type
+    print qq{"$C{$k}{species}",};           # NW = narwhal, WW = beluga
+    print qq{$C{$k}{sex},};                 # 1 = Male, 2 = Female
+    print qq{0,};                           # mother/calf (not supplied)
+    print qq{$C{$k}{length},};              # size
+    print qq{$C{$k}{size},};                # sizecat
+    print qq{$C{$k}{surf},$C{$k}{surf},};   # depth1,depth2
+
+    # surface data
+    if ($type == 0 && defined $surface) { 
+        print qq{$surface,}; # raw 
+        printf qq{%5.3f,}, 100*$surface/21600; # as %
+        printf qq{%5.3f,}, 100*$surface/21600; # doubled (D1, D2)
+    } else {
+        print qq{,,,};
+    }
+
+    my $sum = $H{$k}{$daynr}{bin}[$type]{sum}; # sum
+    ; # accumulate for dives/hr:24hr calc.
+    $dives += $sum if $type == 0 || ($type == 1 && ! $type0);
+
+    printf qq{%d,}, $sum;
+
+    my $bins = \$H{$k}{$daynr}{bin}[$type]{bins};
+
+    for my $b (0..13) {
+        if (defined $$$bins[$b]) { print qq{$$$bins[$b],} }
+        else                     { print qq{0,} }
+    }
+    
+    # dump dive/24hr data now?  display with latest time period possible
+    my $enough = $type == 2 || $type == 1 && ! $type2 ||
+        $type == 0 && !$type1 && !$type2;
+    my $daynr_25 = sprintf "%.2f", 0.25 + $daynr;
+    my $daynr_50 = sprintf "%.2f", 0.50 + $daynr;
+    $dive24 = $enough &&
+        ( $period == .75  ||
+         ($period == .50  && !defined $H{$k}{$daynr_25}) ||
+         ($period == .25  && !defined $H{$k}{$daynr_25} && !defined $H{$k}{$daynr_50}));
+
+    # dives
+    if ($dive24) {
+        print "$dives," 
+    } elsif ($type == 0 && defined $H{$k}{$daynr}{bin}[$type]{ibin}) {
+        my $dives = $$$bins[$H{$k}{$daynr}{bin}[$type]{ibin}]; 
+        print "$dives,";
+    } else { 
+        print "$missing,"; 
+    }
+
+    # DIST
+    if ($type == 0 && defined $H{$k}{$daynr}{bin}[$type]{dist}) {
+        my $dist = $H{$k}{$daynr}{bin}[$type]{dist}; 
+        $warn = 1 if $dist > $max_dist;
+        $warn = 1 if $dist > $max_dist || $dist < 0;
+        $DB::single = 1 if $dist < 0;
+        printf "%.3f,", $dist;
+    } else {
+        print "$missing,";
+    }
+
+    # TAD
+    if ($dive24) {
+        printf "%d,", 6*$quarter;
+    } elsif ($type == 0 && defined $H{$k}{$daynr}{bin}[$type]{tad}) {
+        my $tad = $H{$k}{$daynr}{bin}[$type]{tad}; 
+        print "$tad,";
+    } else {
+        print "$missing,";
+    }
+
+    # speed
+    if ($type == 0 && defined $H{$k}{$daynr}{bin}[$type]{speed}) {
+        my $speed = $H{$k}{$daynr}{bin}[$type]{speed}; 
+        $warn = 1 if $speed > $max_speed;
+        $DB::single = 1 if $speed < 0;
+        printf "%.3f,", $speed;
+    } else {
+        print "$missing,";
+    }
+
+    # dives/hr:6hr
+    if ($type == 0 || $type == 1 && ! $type0) { 
+        my $rate = $sum/6;
+        printf "%.3f,", $rate;
+        $warn = 1 if $rate > $max_diverate;
+    } else { 
+        print "$missing,"; 
+    }
+
+    # dives/hr:24hr
+    if ($dive24 && $quarter == 0) {
+        err_analysis('quarter=0',"$k : $daynr : $type");
+    } elsif ($dive24) {
+        my $rate = $dives/(6*$quarter);
+        printf "%.3f,", $rate;
+        $warn = 1 if $rate > $max_diverate;
+    } else { 
+        print "$missing,";
+    }
+
+    if ($dive24 && $quarter != 0) {
+        (my $base = $daynr) =~ s/\..*$//;
+        if ($M{$k}{$base}) {
+            print "$M{$k}{$base},";
+        } else {
+            print "$missing,"; 
+        }
+    } else { 
+        print "$missing,";
+    }
+
+    print "?," if $warn != 0;
+    print "\n";
+    }
+
+  }
+}
+
+}
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#####
+# whale 'control' data giving characteristics of individuals and their 
+# transmitters stored in DATA handle at end of this file
+sub process_whale {
+
+# better to pass in via command-line switch, but client wants a default...
+open(TAB,"<$root/setup/whales.tab") || die "Cannot find whale identification table";
+
+while ($_ = <TAB>) {
+    chomp;
+    next if /^#/;
+    my @data = split /\t/;
+    my $idno = $data[0];
+    my $year = $data[1];
+    my $locale = $data[2];
+    my $key = "${idno}_$year"; # unique key per whale, per year
+    $C{$key}{locale}      = $locale;
+    $C{$key}{species}     = $data[3];
+    $C{$key}{sex}         = $data[4];
+    $C{$key}{length}      = $data[5];
+    $C{$key}{size}        = $data[7];
+    $C{$key}{surf}        = $data[8];
+    @{$C{$key}{depth}}    = split /,/, $data[9];    # type=0
+    @{$C{$key}{duration}} = split /,/, $data[10];   # type=1
+    @{$C{$key}{time}}     = split /,/, $data[11];   # type=2
+}
+
+close(TAB);
+
+}
+
+#####
+# process histogram records
+sub process_histo {
+
+# clean up
+chomp;
+s/\t/, /g;
+s/(,\s+0)+$//; # clobber trailing empty bins
+s/\s+//g;
+#s/(,0)+$//; # clobber trailing empty bins
+return if $_ eq '';
+
+# separate fields, bail if an insufficient number
+my @F = split /,/;
+err_read('trunc.',$_), return if $#F < 12;
+
+# select fields that we'll actually use
+my $idno   = $F[1];
+my $sum    = $F[5];
+my $warning = $F[9];
+my $day_2  = date_fmt($F[10]);
+#my $day_2  = $F[10];
+my $per_2  = $F[11];
+my $type   = $F[12];
+my @bins   = @F[13..$#F];
+
+# validation
+if ($validate) {
+
+# verify fields
+err_read('idno=?',$_), next if $idno   !~ /^\d+$/;
+err_read('sum=?',$_),  next if $sum    !~ /^\d+$/;
+err_read('day2=?',$_), next if $day_2  !~ /^\d{5,7}$/;
+err_read('per2=?',$_), next if $per_2  !~ /^[0123]$/;
+err_read('type=?',$_), next if $type   !~ /^[0123]$/;
+
+}
+
+# all type=3 records are bogus (upstream programming error in transmitter)
+err_read('type=3',$_), return if $type == 3;
+
+# check for other bogus data
+err_read('sum = 0',$_), return if $sum == 0;
+err_read('on boat',$_), return if $bins[0] == 254 && $bins[1] == 254;
+
+# all 'histogram' warnings are fatal?
+#err_read('24hr off',$_) if $warning =~ /histo/i;
+
+# date calc (correct for year-end roll-over)
+(my $year) = $day_2 =~ /^(....)/;
+(my $doy)  = $day_2 =~ /^....(.*)/;
+#if ($doy < $roll_over) {
+if ($doy < $roll_over || $doy < (${roll_over}+21) && $year == 2003) {
+    $year--;
+    $doy = $doy + 365;     # one full year
+    $doy++ unless $year/4; # account for (normal) leap years
+}
+
+# create unique key, set period variables
+my $k = "${idno}_$year";
+my $daynr = sprintf "%.2f", $doy + $per_2/4;
+
+if ($validate) {
+$DB::single = 1;
+err_read('key=?',$k),    return if ! defined $C{$k};
+}
+
+# duplicate data
+err_read('repeat',$_), return if defined $H{$k}{$daynr}{bin}[$type]{sum};
+
+# store 
+$H{$k}{$daynr}{bin}[$type]{sum} = $sum;
+push @{$H{$k}{$daynr}{bin}[$type]{bins}}, @bins;
+
+$accept++;
+
+}
+
+#####
+# scope to create persistent variable 'peek'
+PEEK:
+{
+
+my($peek);
+
+#####
+# Read '.his' file by peeking ahead, and returning data only when we're
+# sure that we have all fields associated with a given record.
+# This is required as .his files may contain lines-break at column 80.
+sub read_histo {
+my($line,$f);
+$line = $peek if $peek;
+return "$line\n" if eof() && $line ne '';
+my $orig_len = 0;
+
+while (!eof()) {
+    $peek = <>; chomp $peek;
+    next if $peek =~ /^#/;
+    next if $peek =~ /(SAT|File|thru|Period|Clock drift|D:|Content)/ ||
+        $peek =~ /^\-/ || $peek =~ /^\s*$/;
+
+    #if ($peek =~ /^\s/ && $line ne '' && 79 != $orig_len) x # DH debug
+    if (
+    ($peek =~ /^9\d-/)
+    ||
+    ($peek =~ /^\d{5},/)
+    ||
+    ($peek =~ /^\s/ && $line ne '' && 79 != $orig_len) 
+    ) {
+        $orig_len = length $peek;
+        $peek =~ s/^\s+//;
+        #print "$line\n";
+        return "$line\n"; 
+    }
+    ($line .= $peek) =~ s/^\s+//;
+}
+
+}
+
+} # end of 'PEEK' scope
+
+#####
+# get next status record
+sub read_status {
+my($line);
+
+# sample status record
+#  0       1    2       3          4             5    6      7   8    9     10   11  12     13  14         15 16          17 
+#  NONAME  7927 2000227 13:34:37   xmits=        1325 Pzero= 11  BV=  9.98  SWR= 40  MaxD=   0  AtSurf6=    0 AtSurf12=    0
+
+# get next line, skipping non-data lines
+REPEAT: {
+$line = <STATUS>;
+goto REPEAT if 
+    $line =~ /(SATSTAT|File|SDR|Clock drift|minutes|Invalid)/ || 
+    $line =~ /^#/ ||
+    $line =~ /^\s*$/ && ! eof(STATUS);
+}
+
+# join with next line due to hard-return at column 80
+if ($line =~ /SWR=\s*$/) { chomp $line; $line .= <STATUS>; }
+
+# clean up
+chomp $line;
+$line =~ s/=/ /g; # ensure labels/values separated by at least one blank
+$line =~ s/^\s+//; $line =~ s/\s+$//;
+return $line;
+
+}
+
+#####
+# read status records
+sub process_status {
+my($err6,$err12,$err24);
+
+return unless $_ ne '';
+
+# select fields that we'll actually use
+my @F = split /\s+/;
+my $idno     = $F[1];
+my $date     = date_fmt($F[2]);  
+#my $date     = $F[2];  $date =~ s#/##g;
+my $time     = $F[3];
+my $maxdepth = $F[13];
+my $atsurf6  = $F[15];
+my $atsurf12 = $F[17];
+
+# validation
+if ($validate) {
+    err_read('idno=?',$_),    return if $idno     !~ /^\d+$/;
+    err_read('date=?',$_),    return if $date     !~ /^\d{5,7}$/;
+    err_read('time=?',$_),    return if $time     !~ /^\d\d:\d\d:\d\d$/;
+    err_read('maxdepth=?',$_),return if $maxdepth !~ /^\d+$/;
+    err_read('surf6=?',$_),   return if $atsurf6  !~ /^\d+$/;
+    err_read('surf12=?',$_),  return if $atsurf12 !~ /^\d+$/;
+}
+
+# date calc (correct for year-end roll-over)
+my( $year) = $date =~ /^(....)/;
+my( $doy)  = $date =~ /^....(.*)/;
+if ($doy < $roll_over || $doy < (${roll_over}+21) && $year == 2003) {
+    $year--;
+    $doy = $doy + 365;     # one full year
+    $doy++ unless $year/4; # account for (normal) leap years
+}
+
+# create unique key, set period variables
+my $key = "${idno}_$year";
+
+if ($validate && ! defined $C{$key}) {
+    err_read('key=?',$key); 
+    return ;
+}
+
+if ($atsurf6 != 0) {
+    my($day6) = time_to_period($doy,$time,6);
+    $S{$key}{$day6} = $atsurf6;
+}
+
+if ($atsurf12 != 0) {
+    my($day12) = time_to_period($doy,$time,12);
+    $S{$key}{$day12} = $atsurf12;
+}
+
+if ($maxdepth != 0) {
+    my($day24) = int time_to_period($doy,$time,24);
+    if (! defined $M{$key}{$day24}) {
+        $M{$key}{$day24} = $maxdepth;
+    } elsif ($M{$key}{$day24} != $maxdepth) {
+        $err24++;
+    }
+}
+
+$accept++;
+
+}
+
+#####
+# doy/time converted to 'daynr' (DOY + period)
+# periods are: 0:21-2, 1:3-8, 2:9-14, 3:15-20
+sub time_to_period {
+my($doy,$time,$shift) = @_;
+my($hour,$period);
+
+(my $orig = $time) =~ s/:.*//;
+($hour = ($orig-$shift)%24) =~ s/:.*//;
+
+$doy-- if $orig < 6  && $shift == 6;
+$doy-- if $orig < 12 && $shift == 12;
+$doy-- if               $shift == 24;
+
+if    ($hour >= 21 || $hour <=  2) { $period = 0 }
+elsif ($hour >=  3 && $hour <=  8) { $period = 1 }
+elsif ($hour >=  9 && $hour <= 14) { $period = 2 }
+elsif ($hour >= 15 && $hour <= 20) { $period = 3 }
+else  { 
+    err_read('Period?',"$orig/$time");
+    $period = undef;
+    }
+
+return sprintf "%.2f", $doy + ($period/4);
+}
+
+#####
+# parse year/month/day, return in YYYYDDD format
+# understands:
+#  D/MM/YY    DD/MM/YYYY
+#  D/MM/YYYY  DD/MM/YY
+#  YYYY/DDD   YYYYDDD
+#  
+sub date_fmt {
+my($date) = @_;
+
+# variations of DD/MM/YYYY
+if ($date =~ m#^\d{1,2}/\d{1,2}/(\d{2,4})$#) {
+    my $year = $1;
+    $year += 1900 if $year < 100;
+    my $time = str2time($date);
+    my $doy = 1 + (localtime($time))[7];
+    $date = "$year$doy";
+
+# variations of YYYYDDD
+} elsif ($date =~ m#^\d{4}/?\d{3}$#) {
+    $date =~ s#/##g;
+
+# do not understand, return bogus date
+} else {
+    err_analysis('datefmt',"$date / $_");
+    $date = '1900000';
+}
+
+return $date;
+
+}
+
+#####
+# output formatted errors (during file read phase)
+sub err_read {
+my($message,$text) = @_;
+    printf(STDERR "%-10s @ %5d: %s\n", $message, -1 + $.,$text) if $debug && ! $quiet && $message =~ /key/;
+    $reject++;
+}
+
+#####
+# output formatted errors (during analysis phase)
+sub err_analysis {
+my($message,$text) = @_;
+    printf(STDERR "%-10s: %s\n", $message, $text)
+        if $debug && ! $quiet;
+}
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+=head1 NAME
+
+ARGOS-analysis - combine status and histogram dive data to produce Excel-ready analysis
+
+=head1 SYNOPSIS
+
+ARGOS-analysis F<status_file> F<histogram_file>
+
+=head1 DESCRIPTION
+
+Combine status and histogram dive data to produce Excel-ready analysis.
+
+Input is always two files: status and histogram.  
+
+Output is always streams: 
+
+    STDOUT: rows of comma-separated values, results of the dive analysis
+    STDERR: any input data that was rejected
+
+Errors are formatted "B<description> @ B<line #>: B<original data>"
+
+    type=3   @   25: 3964,3964,1999233,.49459,1,0,0,1,34,,1999233,0,3
+
+The B<description> gives the reason the input was rejected, B<line>
+refers to the line number in the input file, and B<original data>
+is the correspoding raw text.
+
+=head1 OPTIONS
+
+None, as it supposed to be simple to use!
+
+But ARGOS_ROOT environment variable must point to location of 
+whale identification table.
+
+=head1 NOTES
+
+Using variable names matching those in 'Argos Data Handling Manual',
+to make the program flow/logic clear to someone browsing with the 
+manual in hand.
+
+=head1 BUGS
+
+None known.
+
+=head1 AUTHOR
+
+David Hoekman <dhoekman@halcyon.com>
+206-866-5993 (Skype)
+
+=cut
