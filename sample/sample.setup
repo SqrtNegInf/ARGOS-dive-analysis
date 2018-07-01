@@ -1,0 +1,27 @@
+Satellite-linked Data Recorder with Telonics ST-16 Argos Transmitter.
+Software version 3.15a.  Unit number: 00-130.  ARGOS geolocation id = 20691
+Unit identifier = HC.  Unit started at 00:15:17 on 01/01/00
+Time (GMT) is 00:19:08.62.  Date (GMT) is 01 January 2000 (DH)
+Shallowest depth to be considered a "dive" = 8 meters
+Deepest depth for accumulating surface-timelines (0=dry only) = 8 meters
+SLTDR uses 1-sec / 1/4-sec wakeups when shallower than 40 / 12 meters
+Local time [0-23 hours] corresponding to 00h UT (GMT): 19
+Transmission intervals (at-sea / on-land) = 00:48.00 / 01:33.00
+SLTDR will use on-land interval after 10 consecutive dry transmissions
+SLTDR will suspend transmissions after 1 hours "hauled-out".  "Haul-out" ends
+  after SLTDR is "wet" for 2 successive at-sea transmission intervals
+Transmissions will be duty cycled with 1 day on and 0 days off
+Daily allowance (1-message transmissions; unused xmits don't accumulate) = 150
+STATUS will be transmitted every 15 messages.
+Blocks of Time-Lines will be transmitted every 30 messages.
+Hours when SLTDR transmits: 00-23, 
+Upper limits of maximum-depth histogram bins are: 
+20, 36, 52, 100, 152, 200, 300, 400, 500, 600, 700, 800, 900, * meters
+Upper limits of dive-duration histogram bins are: 
+1, 3, 6, 9, 12, 15, 18, 21, 24, * minutes
+Upper limits of time-at-depth histogram bins are: 
+20, 36, 52, 100, 152, 200, 300, 400, 500, 600, 700, 800, 900, * meters
+SL-TDR> k
+This command disables all data sampling and is used to maintain collected
+data for subsequent listing.  Are you sure? y
+Disconnect communications cable, no further data samples will be taken 

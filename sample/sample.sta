@@ -1,0 +1,76 @@
+      HC 20691 2000232 10:21:15   xmits=         106 Pzero= 11  BV=  6.46  SWR= 44  MaxD=   0  AtSurf6=    0 AtSurf12=   90 
+      HC 20691 2000232 11:09:05   xmits=         136 Pzero= 11  BV=  6.46  SWR= 44  MaxD=   0  AtSurf6=    0 AtSurf12=   90 
+      HC 20691 2000232 11:59:35   xmits=         166 Pzero= 11  BV=  6.46  SWR= 44  MaxD=   0  AtSurf6=10530 AtSurf12=    0 
+      HC 20691 2000232 12:36:24   xmits=         181 Pzero= 10  BV=  6.46  SWR= 44  MaxD=   0  AtSurf6=10530 AtSurf12=    0 
+      HC 20691 2000232 16:10:28   xmits=         270 Pzero= 11  BV=  6.46  SWR= 44  MaxD=  32  AtSurf6=10530 AtSurf12=    0 
+      HC 20691 2000232 22:47:32   xmits=         435 Pzero= 11  BV=  6.98  SWR= 44  MaxD=  32  AtSurf6=20430 AtSurf12=10530 
+      HC 20691 2000232 22:47:32   xmits=         435 Pzero= 11  BV=  6.98  SWR= 44  MaxD=  32  AtSurf6=20430 AtSurf12=10530 
+      HC 20691 2000233 15:51:15   xmits=         510 Pzero= 11  BV=  6.91  SWR= 40  MaxD=  80  AtSurf6=17370 AtSurf12=14580 
+      HC 20691 2000233 16:38:26   xmits=         525 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  80  AtSurf6=17370 AtSurf12=14580 
+      HC 20691 2000233 19:55:30   xmits=         585 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  80  AtSurf6=18720 AtSurf12=17370 
+      HC 20691 2000233 20:46:32   xmits=         600 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  80  AtSurf6=18720 AtSurf12=17370 
+      HC 20691 2000233 20:46:32   xmits=         600 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  80  AtSurf6=18720 AtSurf12=17370 
+      HC 20691 2000234 03:29:57   xmits=         733 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  80  AtSurf6=18810 AtSurf12=18720 
+      HC 20691 2000234 18:43:51   xmits=         808 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 19:35:44   xmits=         823 Pzero= 11  BV=  6.91  SWR= 41  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 20:27:03   xmits=         838 Pzero= 10  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 20:27:03   xmits=         838 Pzero= 10  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 22:13:37   xmits=         883 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 22:58:16   xmits=         898 Pzero= 10  BV=  6.98  SWR= 40  MaxD=  72  AtSurf6= 5490 AtSurf12= 5130 
+      HC 20691 2000234 23:39:36   xmits=         913 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  72  AtSurf6=11610 AtSurf12= 5490 
+      HC 20691 2000234 23:39:36   xmits=         913 Pzero= 11  BV=  6.98  SWR= 40  MaxD=  72  AtSurf6=11610 AtSurf12= 5490 
+      HC 20691 2000235 18:19:59   xmits=        1047 Pzero= 11  BV=  6.98  SWR= 41  MaxD= 120  AtSurf6= 4950 AtSurf12= 8550 
+      HC 20691 2000235 22:02:21   xmits=        1107 Pzero= 11  BV=  6.98  SWR= 41  MaxD= 120  AtSurf6= 4950 AtSurf12= 8550 
+      HC 20691 2000236 16:58:02   xmits=        1284 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  80  AtSurf6=12150 AtSurf12=13860 
+      HC 20691 2000236 18:10:09   xmits=        1312 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  80  AtSurf6=17550 AtSurf12=12150 
+      HC 20691 2000236 18:46:25   xmits=        1327 Pzero= 11  BV=  6.91  SWR= 41  MaxD=  80  AtSurf6=17550 AtSurf12=12150 
+      HC 20691 2000237 00:34:56   xmits=        1431 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  80  AtSurf6=16560 AtSurf12=17550 
+      HC 20691 2000237 03:16:26   xmits=        1476 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  80  AtSurf6=16560 AtSurf12=17550 
+      HC 20691 2000237 04:12:46   xmits=        1491 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  80  AtSurf6=16560 AtSurf12=17550 
+      HC 20691 2000237 15:55:04   xmits=        1521 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  40  AtSurf6=21240 AtSurf12=15210 
+      HC 20691 2000237 17:43:49   xmits=        1566 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  40  AtSurf6=19440 AtSurf12=21240 
+      HC 20691 2000237 19:42:21   xmits=        1611 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  40  AtSurf6=19440 AtSurf12=21240 
+      HC 20691 2000237 23:02:22   xmits=        1701 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  40  AtSurf6=19440 AtSurf12=21240 
+      HC 20691 2000238 16:32:40   xmits=        1776 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=13050 AtSurf12=14130 
+      HC 20691 2000238 16:32:40   xmits=        1776 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=13050 AtSurf12=14130 
+      HC 20691 2000238 18:04:38   xmits=        1806 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=20250 AtSurf12=13050 
+      HC 20691 2000238 18:04:38   xmits=        1806 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=20250 AtSurf12=13050 
+      HC 20691 2000238 19:28:27   xmits=        1836 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=20250 AtSurf12=13050 
+      HC 20691 2000239 00:45:50   xmits=        1941 Pzero= 11  BV=  6.98  SWR= 41  MaxD=  72  AtSurf6=14940 AtSurf12=20250 
+      HC 20691 2000239 16:02:55   xmits=        2016 Pzero= 10  BV=  6.98  SWR= 42  MaxD=  56  AtSurf6=10350 AtSurf12=13230 
+      HC 20691 2000239 19:21:06   xmits=        2061 Pzero= 11  BV=  6.98  SWR= 42  MaxD=  56  AtSurf6= 5040 AtSurf12=10350 
+      HC 20691 2000239 22:32:05   xmits=        2148 Pzero= 11  BV=  6.98  SWR= 42  MaxD=  56  AtSurf6= 5040 AtSurf12=10350 
+      HC 20691 2000240 15:47:09   xmits=        2268 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 112  AtSurf6= 5850 AtSurf12= 9090 
+      HC 20691 2000240 15:47:09   xmits=        2268 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 112  AtSurf6= 5850 AtSurf12= 9090 
+      HC 20691 2000240 16:29:01   xmits=        2283 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 112  AtSurf6= 5850 AtSurf12= 9090 
+      HC 20691 2000240 17:16:33   xmits=        2298 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 112  AtSurf6= 5850 AtSurf12= 9090 
+      HC 20691 2000240 22:17:07   xmits=        2373 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 112  AtSurf6=16200 AtSurf12= 5850 
+      HC 20691 2000241 15:58:49   xmits=        2522 Pzero= 11  BV=  6.98  SWR= 43  MaxD=  88  AtSurf6= 8190 AtSurf12=16380 
+      HC 20691 2000241 17:03:36   xmits=        2537 Pzero= 11  BV=  6.98  SWR= 43  MaxD=  88  AtSurf6= 8190 AtSurf12=16380 
+      HC 20691 2000241 17:49:46   xmits=        2552 Pzero= 11  BV=  6.98  SWR= 43  MaxD=  88  AtSurf6= 5850 AtSurf12= 8190 
+      HC 20691 2000241 20:18:09   xmits=        2596 Pzero= 11  BV=  6.98  SWR= 43  MaxD=  88  AtSurf6= 5850 AtSurf12= 8190 
+      HC 20691 2000242 19:09:37   xmits=        2849 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 8280 AtSurf12= 4050 
+      HC 20691 2000242 19:09:37   xmits=        2849 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 8280 AtSurf12= 4050 
+      HC 20691 2000242 20:14:15   xmits=        2863 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 8280 AtSurf12= 4050 
+      HC 20691 2000242 23:07:33   xmits=        2908 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 8280 AtSurf12= 4050 
+      HC 20691 2000243 00:05:30   xmits=        2923 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 6120 AtSurf12= 8280 
+      HC 20691 2000243 00:05:30   xmits=        2923 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 6120 AtSurf12= 8280 
+      HC 20691 2000243 00:59:01   xmits=        2938 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 6120 AtSurf12= 8280 
+      HC 20691 2000243 01:54:59   xmits=        2953 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 6120 AtSurf12= 8280 
+      HC 20691 2000243 03:30:51   xmits=        2983 Pzero= 11  BV=  6.98  SWR= 43  MaxD= 128  AtSurf6= 6120 AtSurf12= 8280 
+      HC 20691 2000243 17:56:11   xmits=        3069 Pzero= 11  BV=  6.98  SWR= 44  MaxD= 136  AtSurf6= 7470 AtSurf12= 5220 
+      HC 20691 2000243 18:26:28   xmits=        3084 Pzero= 11  BV=  6.98  SWR= 44  MaxD= 136  AtSurf6= 7470 AtSurf12= 5220 
+      HC 20691 2000243 20:00:51   xmits=        3112 Pzero= 11  BV=  6.98  SWR= 44  MaxD= 136  AtSurf6= 7470 AtSurf12= 5220 
+      HC 20691 2000243 23:28:31   xmits=        3170 Pzero= 11  BV=  6.98  SWR= 44  MaxD= 136  AtSurf6= 7470 AtSurf12= 5220 
+      HC 20691 2000244 15:49:40   xmits=        3272 Pzero= 11  BV=  6.85  SWR= 43  MaxD= 192  AtSurf6= 5940 AtSurf12= 5850 
+      HC 20691 2000244 16:38:14   xmits=        3286 Pzero= 11  BV=  6.91  SWR= 43  MaxD= 192  AtSurf6= 5940 AtSurf12= 5850 
+      HC 20691 2000244 18:15:30   xmits=        3316 Pzero= 11  BV=  6.85  SWR= 43  MaxD= 192  AtSurf6= 5310 AtSurf12= 5940 
+      HC 20691 2000244 19:52:34   xmits=        3345 Pzero= 11  BV=  6.91  SWR= 43  MaxD= 192  AtSurf6= 5310 AtSurf12= 5940 
+      HC 20691 2000245 00:53:12   xmits=        3446 Pzero= 11  BV=  6.91  SWR= 43  MaxD= 192  AtSurf6= 6480 AtSurf12= 5310 
+      HC 20691 2000245 04:19:22   xmits=        3503 Pzero= 11  BV=  6.78  SWR= 43  MaxD= 192  AtSurf6= 6480 AtSurf12= 5310 
+      HC 20691 2000245 04:19:22   xmits=        3503 Pzero= 11  BV=  6.78  SWR= 43  MaxD= 192  AtSurf6= 6480 AtSurf12= 5310 
+      HC 20691 2000245 17:59:09   xmits=        3593 Pzero= 11  BV=  6.66  SWR= 44  MaxD= 280  AtSurf6=10710 AtSurf12= 6930 
+      HC 20691 2000245 18:32:47   xmits=        3608 Pzero= 11  BV=  6.40  SWR= 44  MaxD= 280  AtSurf6=10710 AtSurf12= 6930 
+      HC 20691 2000245 19:41:06   xmits=        3653 Pzero= 10  BV=  6.40  SWR= 44  MaxD= 280  AtSurf6=10710 AtSurf12= 6930 
+      HC 20691 2000245 19:41:06   xmits=        3653 Pzero= 10  BV=  6.40  SWR= 44  MaxD= 280  AtSurf6=10710 AtSurf12= 6930 
+      HC 20691 2000245 21:47:31   xmits=        3758 Pzero= 10  BV=  3.65  SWR= 43  MaxD= 280  AtSurf6=10710 AtSurf12= 6930 

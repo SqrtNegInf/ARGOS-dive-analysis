@@ -1,0 +1,16 @@
+# data format:
+#  seven data columns (listed below)
+#  columns are separated by one or more spaces/tabs
+#  for clarity, use a placeholder (e.g. '-' or 'n/a') when data is missing
+#
+# column layout:
+# 1 Transmitter number
+# 2 Year
+# 3 Locale
+# 4 Species  (NW=narwhal, WW=beluga)
+# 5 Sex      (1=male, 2=female)
+# 6 Length
+# 7 Fluke width
+#
+
+20691 2000 CRE NW 2 400 92 
