@@ -33,6 +33,11 @@ of interest to marine-mammal biologists and wildlife managers, such as
 
 and so forth...
 
+Sample data available [to browse](./sample).
+
+A slightly more technical introduction to the analysis system at available at
+<http://www.davidhoekman.com/argos>
+
 ## Whales and technology
 
 For this project, the whales tagged were belugas and narwhals around Greenland
